@@ -51,6 +51,8 @@ int snapCount = 0;
 
 int playerWorldX = WIDTH / 2;
 int playerY;
+int facingDirection = 1;  // 1 means facing right, -1 means facing left.
+
 int cameraX = 0;
 int showLogOverlay = 0;
 int mouseX = 0, mouseY = 0;
@@ -153,11 +155,10 @@ void renderSceneNoUI() {
         SDL_RenderCopy(renderer, plantSheet, &plants[i].sprite, &dst);
     }
 
-    SDL_Rect playerDst = { WIDTH/2 - playerW/2, playerY, playerW, playerH };
-    SDL_RenderCopyEx(renderer, playerTexture, NULL, &playerDst,
-                     0.0, NULL,
-                     (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_A]
-                      ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE));
+SDL_Rect playerDst = { WIDTH/2 - playerW/2, playerY, playerW, playerH };
+SDL_RenderCopyEx(renderer, playerTexture, NULL, &playerDst,
+                 0.0, NULL,
+                 (facingDirection == -1 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE));
 }
 
 void takePhoto() {
@@ -371,9 +372,21 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        keys = SDL_GetKeyboardState(NULL);
-        if (keys[SDL_SCANCODE_A]) playerWorldX -= 2;
-        if (keys[SDL_SCANCODE_D]) playerWorldX += 2;
+keys = SDL_GetKeyboardState(NULL);
+
+// If "A" is pressed, move the player left and face left.
+if (keys[SDL_SCANCODE_A]) {
+    playerWorldX -= 2;
+    facingDirection = -1;  // Player is facing left.
+}
+
+// If "D" is pressed, move the player right and face right.
+if (keys[SDL_SCANCODE_D]) {
+    playerWorldX += 2;
+    facingDirection = 1;  // Player is facing right.
+}
+
+
 
         cameraX = playerWorldX - WIDTH/2;
         currentBackground = (playerWorldX/3000) % 2;
